@@ -1,4 +1,4 @@
-const URI = "http://localhost:8080";
+const URI = "http://127.0.0.1:80";
 
 const logout = () => {
     localStorage.removeItem("token");
