@@ -1,0 +1,15 @@
+[submodule "api/account"]
+	path = api/account
+	url = https://github.com/repo-classes/pma252.account.git
+[submodule "api/account-service"]
+	path = api/account-service
+	url = https://github.com/repo-classes/pma252.account-service.git
+[submodule "api/auth"]
+	path = api/auth
+	url = https://github.com/repo-classes/pma252.auth.git
+[submodule "api/auth-service"]
+	path = api/auth-service
+	url = https://github.com/repo-classes/pma252.auth-service.git
+[submodule "api/gateway-service"]
+	path = api/gateway-service
+	url = https://github.com/repo-classes/pma252.gateway-service.git

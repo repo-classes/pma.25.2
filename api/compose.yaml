@@ -3,7 +3,7 @@ name: store-api
 services:
 
   db:
-    image: postgres:17.6
+    image: postgres:17.7
     hostname: db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -16,7 +16,7 @@ services:
 
   account:
     build:
-      context: ./pma252.account-service
+      context: ./account-service
       dockerfile: Dockerfile
     hostname: account
     environment:
@@ -31,7 +31,7 @@ services:
 
   auth:
     build:
-      context: ./pma252.auth-service
+      context: ./auth-service
       dockerfile: Dockerfile
     hostname: auth
     environment:
@@ -40,7 +40,7 @@ services:
 
   gateway:
     build:
-      context: ./pma252.gateway-service
+      context: ./gateway-service
       dockerfile: Dockerfile
     # ports:
     #   - 8080:8080
