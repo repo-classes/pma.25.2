@@ -1,13 +1,27 @@
 const URI = "http://127.0.0.1:80";
 
 const logout = () => {
-    localStorage.removeItem("token");
-    loadUserInfo();
+    fetch(`${URI}/auth/logout`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response;
+    }).then(data => {
+        console.log("Success:", data);
+        loadUserInfo();
+    }).catch((error) => {
+        console.error("Error:", error);
+    });
     return false;
 }
 
 const login = () => {
-    logout();
     var payload = {
         email: document.getElementById("accountEmail").value,
         password: document.getElementById("accountPassword").value
@@ -18,18 +32,15 @@ const login = () => {
         headers: {
             "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(payload)
     }).then(response => {
         if (!response.ok) {
             throw new Error("Network response was not ok");
         }
-        return response.json();
+        return response;
     }).then(data => {
         console.log("Success:", data);
-        const token = data.jwt;
-        localStorage.setItem("token", token);
-        const decoded = decodeJwt(token);
-        console.log("Decoded JWT:", decoded);
         loadUserInfo();
     }).catch((error) => {
         console.error("Error:", error);
@@ -39,9 +50,9 @@ const login = () => {
 
 const register = () => {
     var payload = {
-            name: document.getElementById("accountName").value,
-            email: document.getElementById("accountEmail").value,
-            password: document.getElementById("accountPassword").value
+        name: document.getElementById("accountName").value,
+        email: document.getElementById("accountEmail").value,
+        password: document.getElementById("accountPassword").value
     };
     console.log("Sending payload:", payload);
     fetch(`${URI}/auth/register`, {
@@ -49,6 +60,7 @@ const register = () => {
         headers: {
             "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(payload)
     }).then(response => {
         if (!response.ok) {
@@ -57,10 +69,6 @@ const register = () => {
         return response.json();
     }).then(data => {
         console.log("Success:", data);
-        const token = data.jwt;
-        localStorage.setItem("token", token);
-        const decoded = decodeJwt(token);
-        console.log("Decoded JWT:", decoded);
         loadUserInfo();
     }).catch((error) => {
         console.error("Error:", error);
@@ -68,39 +76,29 @@ const register = () => {
     return false;
 };
 
-function decodeJwt(token) {
-    try {
-        const base64Url = token.split(".")[1];
-        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        const jsonPayload = decodeURIComponent(
-            window
-            .atob(base64)
-            .split("")
-            .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-            .join("")
-        );
-        return JSON.parse(jsonPayload);
-    } catch (error) {
-        console.error("Invalid JWT token", error);
-        return null;
-    }
-}
-
 const loadUserInfo = () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        const decoded = decodeJwt(token);
-        if (decoded) {
-            document.getElementById("user-name").innerText = `Name: ${decoded.sub}`;
-            document.getElementById("user-email").innerText = `Email: ${decoded.email}`;
-        } else {
-            document.getElementById("user-name").innerText = "Invalid token";
-            document.getElementById("user-email").innerText = "";
+    console.log("Getting user info");
+    fetch(`${URI}/account/whoami`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
         }
-    } else {
-        document.getElementById("user-name").innerText = "No token found";
-        document.getElementById("user-email").innerText = "";
-    }
+        return response.json();
+    }).then(data => {
+        console.log("Success:", data);
+        document.getElementById("user-name").innerText = `Name: ${data.name}`;
+        document.getElementById("user-email").innerText = `Email: ${data.email}`;
+    }).catch((error) => {
+        document.getElementById("user-name").innerText = ``;
+        document.getElementById("user-email").innerText = ``;
+        console.error("Error:", error);
+    });
+    return false;
 };
 
 const saveAccount = () => {
@@ -116,6 +114,7 @@ const saveAccount = () => {
             "Content-Type": "application/json",
             ... (localStorage.getItem("token") && { "Authorization": `Bearer ${localStorage.getItem("token")}` })
         },
+        credentials: "include",
         body: JSON.stringify(payload)
     });
     return false;
@@ -127,7 +126,8 @@ const getAccounts = () => {
         headers: {
             "Content-Type": "application/json",
             ... (localStorage.getItem("token") && { "Authorization": `Bearer ${localStorage.getItem("token")}` })
-        }
+        },
+        credentials: "include"
     }).then(response => {
         if (!response.ok) {
             throw new Error("Network response was not ok");
@@ -153,7 +153,8 @@ const getSettings = () => {
         headers: {
             "Content-Type": "application/json",
             ... (localStorage.getItem("token") && { "Authorization": `Bearer ${localStorage.getItem("token")}` })
-        }
+        },
+        credentials: "include"
     }).then(response => {
         if (!response.ok) {
             throw new Error("Network response was not ok");
